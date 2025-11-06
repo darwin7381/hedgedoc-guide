@@ -72,8 +72,8 @@ export default defineConfig({
     // 導航欄
     nav: [
       { text: '首頁', link: '/' },
-      { text: '標準操作指南', link: '/1-guide/standard-operation-guide' },
-      { text: '驗證報告', link: '/2-api-reference/verification-report' }
+      { text: '標準操作指南', link: '/01-guide/standard-operation-guide' },
+      { text: '驗證報告', link: '/02-api-reference/verification-report' }
     ],
     
     // 側邊欄 - 自動生成
