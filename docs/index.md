@@ -8,36 +8,36 @@ hero:
   actions:
     - theme: brand
       text: 快速開始
-      link: /01-guide/standard-operation-guide
+      link: /1. 使用指南/1.1 標準操作指南
     - theme: alt
       text: API 參考
-      link: /02-api-reference/verification-report
+      link: /2. API 參考/2.1 驗證報告
 
 features:
   - icon: 📖
     title: 使用指南
     details: 詳細的 HedgeDoc API 操作流程，包括認證、文件管理和 n8n 整合
-    link: /01-guide/
+    link: /1. 使用指南/
   
   - icon: 🔌
     title: API 參考
     details: 完整的 API 測試結果與驗證報告
-    link: /02-api-reference/
+    link: /2. API 參考/
   
   - icon: 🚀
     title: 部署指南
     details: VitePress、Railway 和 Cloudflare Worker 完整部署流程
-    link: /03-deployment/
+    link: /3. 部署指南/
   
   - icon: 🔧
     title: 故障排查
     details: 常見問題、失敗經驗和解決方案
-    link: /04-troubleshooting/
+    link: /4. 故障排查/
   
   - icon: 📦
     title: 歷史歸檔
     details: 過往測試記錄與參考文件
-    link: /05-archive/
+    link: /5. 歷史歸檔/
 ---
 
 ## 💡 關於本文檔
@@ -57,14 +57,14 @@ features:
 ### 🎯 推薦閱讀路徑
 
 **初次使用者**：
-1. [使用指南](/01-guide/) → 了解基本操作
-2. [API 參考](/02-api-reference/) → 查看測試結果
-3. [故障排查](/04-troubleshooting/) → 避免常見錯誤
+1. [使用指南](/1. 使用指南/) → 了解基本操作
+2. [API 參考](/2. API 參考/) → 查看測試結果
+3. [故障排查](/4. 故障排查/) → 避免常見錯誤
 
 **部署人員**：
-1. [部署指南](/03-deployment/) → 完整部署流程
-2. [VitePress 設置](/03-deployment/vitepress-setup) → 文檔站設置
-3. [Cloudflare Worker](/03-deployment/cloudflare-worker) → 反向代理配置
+1. [部署指南](/3. 部署指南/) → 完整部署流程
+2. [VitePress 設置](/3. 部署指南/3.1 VitePress 設置) → 文檔站設置
+3. [Cloudflare Worker](/3. 部署指南/3.3 Cloudflare Worker) → 反向代理配置
 
 ---
 
