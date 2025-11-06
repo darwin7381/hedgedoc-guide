@@ -55,6 +55,7 @@ function generateSidebar() {
 }
 
 export default defineConfig({
+  base: '/docs/',  // 必須設置，讓所有資源路徑都在 /docs/ 下
   title: 'HedgeDoc 測試文檔',
   description: 'HedgeDoc API 測試與整合指南',
   
