@@ -1,0 +1,489 @@
+# ❌ 失敗嘗試歸檔
+
+> **⚠️ 重要警告**：本文件記錄的是**已證實不可行**的方法
+> 
+> **請勿嘗試**這些方法，它們只會浪費你的時間！
+> 
+> **正確方法**請參閱：`STANDARD-OPERATION-GUIDE.md`
+
+---
+
+## 📋 文件目的
+
+本文件記錄了在嘗試整合 HedgeDoc API 與 n8n 時，所有**失敗的**、**不可行的**、**錯誤的**方法。
+
+**為什麼要記錄失敗？**
+1. 避免未來重複嘗試相同的錯誤方法
+2. 清楚標示「什麼不可行」
+3. 幫助理解為什麼需要 router 中轉方案
+
+---
+
+## ❌ 失敗方法清單
+
+### 1. n8n HTTP Request 直接調用 HedgeDoc（全部失敗）
+
+#### 嘗試 1.1：Raw Body + text/markdown
+
+**配置**：
+```
+Method: POST
+URL: https://hedgedoc-production-bab4.up.railway.app/new
+
+Send Headers: ✅
+Headers:
+  Content-Type: text/markdown
+
+Send Body: ✅
+Body Content Type: Raw
+Content Type: text/markdown
+Body: # 測試標題
+
+這是測試內容...
+```
+
+**結果**：❌ 失敗
+- 狀態碼：200（應該是 302）
+- 回應：HTML 頁面（應該是重定向）
+
+**失敗原因**：n8n HTTP Request 節點無法正確發送 `text/markdown` 格式的 Body
+
+---
+
+#### 嘗試 1.2：JSON Body + application/json
+
+**配置**：
+```
+Method: POST
+URL: https://hedgedoc-production-bab4.up.railway.app/new
+
+Send Headers: ✅
+Headers:
+  Content-Type: application/json
+
+Send Body: ✅
+Body Content Type: JSON
+Body: "# 測試標題\n\n這是測試內容..."
+```
+
+**結果**：❌ 失敗
+- 狀態碼：200（應該是 302）
+- 回應：HTML 頁面（應該是重定向）
+
+**失敗原因**：HedgeDoc 不接受 `application/json` 格式的內容
+
+---
+
+#### 嘗試 1.3：Form-Data
+
+**配置**：
+```
+Method: POST
+URL: https://hedgedoc-production-bab4.up.railway.app/new
+
+Send Body: ✅
+Body Content Type: Form-Data
+Parameters:
+  Name: content
+  Value: # 測試標題
+
+這是測試內容...
+```
+
+**結果**：❌ 失敗
+- 狀態碼：200（應該是 302）
+- 回應：HTML 頁面
+
+**失敗原因**：HedgeDoc 不接受 Form-Data 格式
+
+---
+
+#### 嘗試 1.4：Form-Data（不指定參數名稱）
+
+**配置**：
+```
+Method: POST
+URL: https://hedgedoc-production-bab4.up.railway.app/new
+
+Send Headers: ✅
+Headers:
+  Content-Type: application/x-www-form-urlencoded
+
+Send Body: ✅
+Body Content Type: Form-Data
+Parameters:
+  Name: (留空)
+  Value: # 測試標題
+
+這是測試內容...
+```
+
+**結果**：❌ 失敗
+- 狀態碼：200
+- 回應：HTML 頁面
+
+**失敗原因**：錯誤的 Content-Type 和參數配置
+
+---
+
+#### 嘗試 1.5：模擬 curl Headers
+
+**配置**：
+```
+Method: POST
+URL: https://hedgedoc-production-bab4.up.railway.app/new
+
+Send Headers: ✅
+Headers:
+  Content-Type: text/markdown
+  User-Agent: curl/7.68.0
+  Accept: */*
+
+Send Body: ✅
+Body Content Type: Raw
+Body: # 測試標題
+
+這是測試內容...
+```
+
+**結果**：❌ 失敗
+- 狀態碼：200
+- 回應：HTML 頁面
+
+**失敗原因**：問題不在 Headers，而是 n8n 無法正確發送 Body
+
+---
+
+#### 嘗試 1.6：Binary File 模式
+
+**配置**：
+```
+Method: POST
+URL: https://hedgedoc-production-bab4.up.railway.app/new
+
+Send Body: ✅
+Body Content Type: n8n Binary File
+Parameter Type: n8n Binary File
+Input Data Field Name: data
+```
+
+**結果**：❌ 錯誤
+- 錯誤訊息：「This operation expects the node's input data to contain a binary file 'data'」
+
+**失敗原因**：
+1. 需要先從其他節點提供 binary data
+2. 這是為文件上傳設計的，不適合純文字內容
+3. 過度複雜化，不是正確的解決方案
+
+---
+
+#### 嘗試 1.7：Form-Data with file parameter
+
+**配置**：
+```
+Method: POST
+URL: https://hedgedoc-production-bab4.up.railway.app/new
+
+Send Body: ✅
+Body Content Type: Form-Data
+Parameters:
+  Name: file
+  Value: # 測試標題
+
+這是測試內容...
+```
+
+**結果**：❌ 失敗
+- 狀態碼：200
+- 回應：HTML 頁面
+
+**失敗原因**：HedgeDoc 不是文件上傳 API，不接受 multipart/form-data
+
+---
+
+#### 嘗試 1.8：各種 Content-Type 組合
+
+**測試的 Content-Type**：
+- `text/plain` ❌
+- `application/octet-stream` ❌
+- `multipart/form-data` ❌
+- `text/html` ❌
+
+**結果**：全部失敗
+
+**失敗原因**：即使 Content-Type 正確（text/markdown），n8n 仍然無法正確發送 Body
+
+---
+
+### 2. 嘗試在 n8n 中執行系統命令（全部失敗）
+
+#### 嘗試 2.1：尋找 Execute Command 節點
+
+**想法**：使用「Execute Command」節點來執行 curl 命令
+
+**結果**：❌ 節點不存在
+- n8n 沒有「Execute Command」節點
+- 這是錯誤的資訊或過時的版本
+
+**失敗原因**：節點根本不存在
+
+---
+
+#### 嘗試 2.2：Code 節點執行 child_process
+
+**想法**：在 Code 節點中使用 `require('child_process')` 執行 curl
+
+**代碼**：
+```javascript
+const { execSync } = require('child_process');
+
+const result = execSync(`
+  curl -X POST https://hedgedoc-production-bab4.up.railway.app/new \
+    -H "Content-Type: text/markdown" \
+    -d "# 測試標題"
+`);
+
+return { result: result.toString() };
+```
+
+**結果**：❌ 安全錯誤
+- n8n Code 節點不允許執行系統命令
+- `require('child_process')` 被安全限制阻擋
+
+**失敗原因**：n8n 的安全機制阻止執行系統命令（這是正確的安全設計）
+
+---
+
+#### 嘗試 2.3：使用 webhook 觸發外部腳本
+
+**想法**：
+1. n8n 發送 webhook 到外部服務器
+2. 服務器執行 curl 命令
+3. 返回結果給 n8n
+
+**結果**：⚠️ 可行，但不是好方案
+- 需要額外的服務器和腳本
+- 這實際上就是 router 方案的雛形
+
+**評價**：如果要這麼做，不如直接實現正規的 router 服務
+
+---
+
+### 3. 嘗試使用臨時文件（不推薦）
+
+#### 嘗試 3.1：n8n 寫入臨時文件，然後上傳
+
+**想法**：
+1. 使用 Code 節點寫入臨時文件
+2. 使用 Binary File 模式上傳文件
+
+**結果**：❌ 不可行
+- n8n Code 節點無法訪問文件系統
+- 即使可以，也會增加不必要的複雜度
+
+**失敗原因**：
+1. 技術限制
+2. 不適合容器化環境
+3. 效能較差
+4. 不是標準做法
+
+---
+
+### 4. 其他錯誤的想法
+
+#### 錯誤想法 4.1：「也許是 HedgeDoc 版本問題」
+
+**想法**：升級或降級 HedgeDoc 版本可能會解決問題
+
+**結果**：❌ 無關
+- curl 可以成功，證明 HedgeDoc API 沒有問題
+- 問題在於 n8n HTTP Request 節點
+
+**結論**：不需要修改 HedgeDoc
+
+---
+
+#### 錯誤想法 4.2：「也許需要特殊的認證 Header」
+
+**想法**：添加特殊的認證 Header 或 Token
+
+**結果**：❌ 無關
+- HedgeDoc `/new` 端點不需要認證
+- curl 不需要認證就可以成功
+
+**結論**：認證不是問題
+
+---
+
+#### 錯誤想法 4.3：「也許需要先創建 session」
+
+**想法**：先訪問 HedgeDoc 首頁獲取 session，然後再創建筆記
+
+**結果**：❌ 無關
+- curl 可以直接創建筆記，不需要 session
+- HedgeDoc API 設計為無狀態
+
+**結論**：不需要 session 管理
+
+---
+
+#### 錯誤想法 4.4：「也許是 n8n 版本問題」
+
+**想法**：升級 n8n 到最新版本
+
+**結果**：⚠️ 可能有幫助，但不應該依賴
+- 即使新版本修復了問題，也不應該依賴特定版本
+- router 方案更加穩定和可控
+
+**結論**：router 方案是更好的長期解決方案
+
+---
+
+## 📊 失敗統計
+
+### 嘗試次數統計
+
+| 類別 | 嘗試次數 | 成功次數 | 失敗原因 |
+|-----|---------|---------|---------|
+| n8n HTTP Request 各種配置 | 8+ | 0 | n8n 無法正確發送 Body |
+| 執行系統命令 | 3 | 0 | 安全限制 / 節點不存在 |
+| 文件系統操作 | 2 | 0 | 技術限制 / 不推薦 |
+| 其他錯誤想法 | 4+ | 0 | 誤解問題根源 |
+| **總計** | **17+** | **0** | - |
+
+### 浪費的時間估計
+
+- 測試各種 n8n 配置：~2-3 小時
+- 查找不存在的節點：~0.5 小時
+- 嘗試系統命令方案：~1 小時
+- 其他錯誤方向：~1 小時
+- **總計浪費時間**：~4.5-5.5 小時
+
+---
+
+## ✅ 正確的解決方案
+
+> **請參閱**：`STANDARD-OPERATION-GUIDE.md`
+
+### 為什麼 router 是正確方案？
+
+1. **技術可行**
+   - n8n 擅長處理 JSON 格式
+   - router 可以用標準 HTTP 調用 HedgeDoc
+   - 不依賴 n8n 的特定行為或版本
+
+2. **架構合理**
+   - 中間層是標準的軟體架構模式
+   - 提供更好的解耦和擴展性
+   - 可以添加日誌、錯誤處理、緩存等功能
+
+3. **維護性好**
+   - router 代碼簡單明確
+   - 不依賴 n8n 的內部實現
+   - 易於測試和調試
+
+4. **性能穩定**
+   - 不需要繞過安全限制
+   - 不需要操作文件系統
+   - 可以優化和緩存請求
+
+---
+
+## 🎓 經驗教訓
+
+### 教訓 1：不要執著於「一定要讓它工作」
+
+**錯誤心態**：
+- 「curl 可以，n8n 應該也可以」
+- 「一定有某種配置組合可以成功」
+- 「再試一次可能就成功了」
+
+**正確心態**：
+- 承認工具的限制
+- 接受需要中間層的事實
+- 選擇更合理的架構方案
+
+### 教訓 2：早點尋求替代方案
+
+**浪費時間的過程**：
+1. 嘗試 n8n 配置 A → 失敗
+2. 查找資料，嘗試配置 B → 失敗
+3. 再查找，嘗試配置 C → 失敗
+4. ...重複多次...
+5. 最終決定用 router
+
+**更好的做法**：
+1. 嘗試基本配置 → 失敗
+2. 快速搜索是否有已知問題
+3. **立即考慮架構方案**（如 router）
+4. 實現並測試 router
+5. 完成！
+
+### 教訓 3：記錄失敗和成功一樣重要
+
+**為什麼這份文件很重要**：
+- 避免未來重複相同錯誤
+- 幫助他人快速找到正確方案
+- 證明為什麼 router 是必要的
+
+---
+
+## 🚫 絕對不要做的事
+
+### 1. 不要再嘗試各種 n8n HTTP Request 配置
+- ❌ 已經測試了所有可能的組合
+- ❌ n8n 就是無法正確處理這個情況
+- ✅ 使用 router 方案
+
+### 2. 不要嘗試繞過 n8n 的安全限制
+- ❌ 執行系統命令是不安全的
+- ❌ n8n 的安全設計是正確的
+- ✅ 尊重安全限制，使用正規方案
+
+### 3. 不要使用文件系統作為中間存儲
+- ❌ 容器環境不友好
+- ❌ 效能較差
+- ❌ 增加複雜度
+- ✅ 使用內存操作或 router
+
+### 4. 不要期待「下次更新就會修復」
+- ❌ 不要依賴不確定的未來更新
+- ❌ 不要為特定版本優化
+- ✅ 使用穩定、可控的 router 方案
+
+---
+
+## 📚 參考資料
+
+### 成功方案文檔
+- **`STANDARD-OPERATION-GUIDE.md`** - 正確的標準操作方式
+- **`hedgedoc-api-test-results.md`** - 成功的測試記錄
+
+### 本文件的前身
+- **`hedgedoc-n8n-integration-errors.md`** - 原始錯誤記錄（已整理到本文件）
+
+---
+
+## ⚠️ 最後警告
+
+**如果你正在考慮「也許我能讓 n8n 直接調用成功」**：
+
+1. 請先閱讀本文件
+2. 看看有多少人（包括我們）已經失敗了
+3. 理解為什麼 router 是正確方案
+4. 不要浪費時間重複相同的錯誤
+
+**記住**：
+> 聰明的人從自己的錯誤中學習
+> 
+> 更聰明的人從別人的錯誤中學習
+> 
+> 這份文件就是「別人的錯誤記錄」，請從中學習！
+
+---
+
+**文件創建時間**：2025-11-05  
+**狀態**：✅ 完整失敗嘗試記錄  
+**用途**：避免重複錯誤，理解為什麼需要 router  
+**維護者**：如果發現新的失敗方法，請添加到本文件
+
