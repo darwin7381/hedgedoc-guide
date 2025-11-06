@@ -111,7 +111,7 @@ export default defineConfig({
   
   // Markdown 配置
   markdown: {
-    html: false,  // 禁用 HTML 解析，這是解決 <NOTE> 等標籤被誤判的唯一官方正規方案
+    html: false,  // 官方正規方案：禁用 HTML 解析，防止 <NOTE> 等被誤判為 Vue 組件
     lineNumbers: true,
     theme: {
       light: 'github-light',
