@@ -43,10 +43,8 @@ function generateSidebar() {
       }))
     
     if (files.length > 0) {
-      // 移除資料夾名稱前的數字編號（如 1-guide → Guide）
-      const displayName = dir.replace(/^\d+-/, '').charAt(0).toUpperCase() + dir.replace(/^\d+-/, '').slice(1)
       items.push({
-        text: displayName,
+        text: dir.charAt(0).toUpperCase() + dir.slice(1),
         collapsed: false,
         items: files
       })
@@ -72,8 +70,8 @@ export default defineConfig({
     // 導航欄
     nav: [
       { text: '首頁', link: '/' },
-      { text: '標準操作指南', link: '/01-guide/standard-operation-guide' },
-      { text: '驗證報告', link: '/02-api-reference/verification-report' }
+      { text: '標準操作指南', link: '/1. 使用指南/1.1 標準操作指南' },
+      { text: '驗證報告', link: '/2. API 參考/2.1 驗證報告' }
     ],
     
     // 側邊欄 - 自動生成
