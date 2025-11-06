@@ -1,58 +1,4 @@
 import { defineConfig } from 'vitepress'
-import { readdirSync, statSync } from 'fs'
-import { join, dirname } from 'path'
-import { fileURLToPath } from 'url'
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
-
-// 自動掃描 docs 目錄生成側邊欄
-function generateSidebar() {
-  const docsDir = join(__dirname, '..')
-  const items: any[] = []
-  
-  // 掃描根目錄的 markdown 文件
-  const rootFiles = readdirSync(docsDir)
-    .filter(file => file.endsWith('.md') && file !== 'index.md')
-    .map(file => ({
-      text: file.replace('.md', '').replace(/-/g, ' '),
-      link: `/${file.replace('.md', '')}`
-    }))
-  
-  if (rootFiles.length > 0) {
-    items.push({
-      text: '文檔',
-      items: rootFiles
-    })
-  }
-  
-  // 掃描子目錄
-  const dirs = readdirSync(docsDir)
-    .filter(item => {
-      const fullPath = join(docsDir, item)
-      return statSync(fullPath).isDirectory() && !item.startsWith('.')
-    })
-  
-  dirs.forEach(dir => {
-    const dirPath = join(docsDir, dir)
-    const files = readdirSync(dirPath)
-      .filter(file => file.endsWith('.md'))
-      .map(file => ({
-        text: file.replace('.md', '').replace(/-/g, ' '),
-        link: `/${dir}/${file.replace('.md', '')}`
-      }))
-    
-    if (files.length > 0) {
-      items.push({
-        text: dir.charAt(0).toUpperCase() + dir.slice(1),
-        collapsed: false,
-        items: files
-      })
-    }
-  })
-  
-  return items
-}
 
 export default defineConfig({
   base: '/docs/',  // 所有資源和連結都會是 /docs/ 開頭，這樣 Worker 才能正確攔截
@@ -69,13 +15,69 @@ export default defineConfig({
   themeConfig: {
     // 導航欄
     nav: [
-      { text: '首頁', link: '/' },
-      { text: '標準操作指南', link: '/STANDARD-OPERATION-GUIDE' },
-      { text: '專案重組摘要', link: '/PROJECT-REORGANIZATION-SUMMARY' }
+      { text: '首頁', link: '/docs/' },
+      { text: '使用指南', link: '/docs/guide/' },
+      { text: 'API 參考', link: '/docs/api-reference/' },
+      { text: '部署指南', link: '/docs/deployment/' },
+      { text: '故障排查', link: '/docs/troubleshooting/' }
     ],
     
-    // 側邊欄 - 自動生成
-    sidebar: generateSidebar(),
+    // 側邊欄 - 結構化配置
+    sidebar: {
+      '/guide/': [
+        {
+          text: '使用指南',
+          items: [
+            { text: '概述', link: '/docs/guide/' },
+            { text: '標準操作指南', link: '/docs/guide/standard-operation-guide' }
+          ]
+        }
+      ],
+      '/api-reference/': [
+        {
+          text: 'API 參考',
+          items: [
+            { text: '概述', link: '/docs/api-reference/' },
+            { text: '驗證報告', link: '/docs/api-reference/verification-report' }
+          ]
+        }
+      ],
+      '/deployment/': [
+        {
+          text: '部署指南',
+          items: [
+            { text: '概述', link: '/docs/deployment/' },
+            { text: 'VitePress 設置', link: '/docs/deployment/vitepress-setup' },
+            { text: 'GitHub & Railway', link: '/docs/deployment/github-railway' },
+            { text: 'Cloudflare Worker', link: '/docs/deployment/cloudflare-worker' }
+          ]
+        }
+      ],
+      '/troubleshooting/': [
+        {
+          text: '故障排查',
+          items: [
+            { text: '概述', link: '/docs/troubleshooting/' },
+            { text: '失敗嘗試歸檔', link: '/docs/troubleshooting/failed-attempts' },
+            { text: '測試文件總結', link: '/docs/troubleshooting/test-files-summary' },
+            { text: '專案重組記錄', link: '/docs/troubleshooting/project-reorganization' }
+          ]
+        }
+      ],
+      '/archive/': [
+        {
+          text: '歷史歸檔',
+          items: [
+            { text: '概述', link: '/docs/archive/' },
+            { text: 'API 方法比較', link: '/docs/archive/hedgedoc-api-methods-comparison' },
+            { text: 'API 測試結果', link: '/docs/archive/hedgedoc-api-test-results' },
+            { text: 'n8n 整合錯誤', link: '/docs/archive/hedgedoc-n8n-integration-errors' },
+            { text: 'HashKey Pro 新聞', link: '/docs/archive/hashkey-pro-news' },
+            { text: 'Markdown 測試', link: '/docs/archive/markdown-test-complete' }
+          ]
+        }
+      ]
+    },
     
     // 社交連結
     socialLinks: [

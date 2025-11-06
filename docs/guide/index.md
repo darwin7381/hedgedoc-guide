@@ -1,0 +1,21 @@
+# 使用指南
+
+這裡包含 HedgeDoc API 的完整操作指南和最佳實踐。
+
+## 📚 指南列表
+
+- [標準操作指南](./standard-operation-guide.md) - 完整的 HedgeDoc API 操作流程，包括認證、文件管理和 n8n 整合
+
+## 🎯 快速開始
+
+建議從[標準操作指南](./standard-operation-guide.md)開始閱讀，這份文檔包含：
+
+- HedgeDoc API 的基本使用方法
+- n8n 整合範例
+- 常見問題解答
+- 最佳實踐建議
+
+## 💡 提示
+
+所有範例都經過實際測試驗證，可以直接使用。
+
