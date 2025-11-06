@@ -1,4 +1,58 @@
 import { defineConfig } from 'vitepress'
+import { readdirSync, statSync } from 'fs'
+import { join, dirname } from 'path'
+import { fileURLToPath } from 'url'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+
+// 自動掃描 docs 目錄生成側邊欄
+function generateSidebar() {
+  const docsDir = join(__dirname, '..')
+  const items: any[] = []
+  
+  // 掃描根目錄的 markdown 文件
+  const rootFiles = readdirSync(docsDir)
+    .filter(file => file.endsWith('.md') && file !== 'index.md')
+    .map(file => ({
+      text: file.replace('.md', '').replace(/-/g, ' '),
+      link: `/${file.replace('.md', '')}`
+    }))
+  
+  if (rootFiles.length > 0) {
+    items.push({
+      text: '文檔',
+      items: rootFiles
+    })
+  }
+  
+  // 掃描子目錄
+  const dirs = readdirSync(docsDir)
+    .filter(item => {
+      const fullPath = join(docsDir, item)
+      return statSync(fullPath).isDirectory() && !item.startsWith('.')
+    })
+  
+  dirs.forEach(dir => {
+    const dirPath = join(docsDir, dir)
+    const files = readdirSync(dirPath)
+      .filter(file => file.endsWith('.md'))
+      .map(file => ({
+        text: file.replace('.md', '').replace(/-/g, ' '),
+        link: `/${dir}/${file.replace('.md', '')}`
+      }))
+    
+    if (files.length > 0) {
+      items.push({
+        text: dir.charAt(0).toUpperCase() + dir.slice(1),
+        collapsed: false,
+        items: files
+      })
+    }
+  })
+  
+  return items
+}
 
 export default defineConfig({
   base: '/docs/',  // 所有資源和連結都會是 /docs/ 開頭，這樣 Worker 才能正確攔截
@@ -13,71 +67,15 @@ export default defineConfig({
   
   // 主題配置
   themeConfig: {
-    // 導航欄（不需要 /docs/ 前綴，base 會自動加）
+    // 導航欄
     nav: [
       { text: '首頁', link: '/' },
-      { text: '使用指南', link: '/guide/' },
-      { text: 'API 參考', link: '/api-reference/' },
-      { text: '部署指南', link: '/deployment/' },
-      { text: '故障排查', link: '/troubleshooting/' }
+      { text: '使用指南', link: '/guide/standard-operation-guide' },
+      { text: 'API 參考', link: '/api-reference/verification-report' }
     ],
     
-    // 側邊欄 - 結構化配置（不需要 /docs/ 前綴）
-    sidebar: {
-      '/guide/': [
-        {
-          text: '使用指南',
-          items: [
-            { text: '概述', link: '/guide/' },
-            { text: '標準操作指南', link: '/guide/standard-operation-guide' }
-          ]
-        }
-      ],
-      '/api-reference/': [
-        {
-          text: 'API 參考',
-          items: [
-            { text: '概述', link: '/api-reference/' },
-            { text: '驗證報告', link: '/api-reference/verification-report' }
-          ]
-        }
-      ],
-      '/deployment/': [
-        {
-          text: '部署指南',
-          items: [
-            { text: '概述', link: '/deployment/' },
-            { text: 'VitePress 設置', link: '/deployment/vitepress-setup' },
-            { text: 'GitHub & Railway', link: '/deployment/github-railway' },
-            { text: 'Cloudflare Worker', link: '/deployment/cloudflare-worker' }
-          ]
-        }
-      ],
-      '/troubleshooting/': [
-        {
-          text: '故障排查',
-          items: [
-            { text: '概述', link: '/troubleshooting/' },
-            { text: '失敗嘗試歸檔', link: '/troubleshooting/failed-attempts' },
-            { text: '測試文件總結', link: '/troubleshooting/test-files-summary' },
-            { text: '專案重組記錄', link: '/troubleshooting/project-reorganization' }
-          ]
-        }
-      ],
-      '/archive/': [
-        {
-          text: '歷史歸檔',
-          items: [
-            { text: '概述', link: '/archive/' },
-            { text: 'API 方法比較', link: '/archive/hedgedoc-api-methods-comparison' },
-            { text: 'API 測試結果', link: '/archive/hedgedoc-api-test-results' },
-            { text: 'n8n 整合錯誤', link: '/archive/hedgedoc-n8n-integration-errors' },
-            { text: 'HashKey Pro 新聞', link: '/archive/hashkey-pro-news' },
-            { text: 'Markdown 測試', link: '/archive/markdown-test-complete' }
-          ]
-        }
-      ]
-    },
+    // 側邊欄 - 自動生成，顯示所有文件
+    sidebar: generateSidebar(),
     
     // 社交連結
     socialLinks: [
