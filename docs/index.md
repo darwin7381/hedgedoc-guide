@@ -17,27 +17,27 @@ features:
   - icon: 📖
     title: 使用指南
     details: 詳細的 HedgeDoc API 操作流程，包括認證、文件管理和 n8n 整合
-    link: /1. 使用指南/
+    link: /1. 使用指南/1.0 概述
   
   - icon: 🔌
     title: API 參考
     details: 完整的 API 測試結果與驗證報告
-    link: /2. API 參考/
+    link: /2. API 參考/2.0 概述
   
   - icon: 🚀
     title: 部署指南
     details: VitePress、Railway 和 Cloudflare Worker 完整部署流程
-    link: /3. 部署指南/
+    link: /3. 部署指南/3.0 概述
   
   - icon: 🔧
     title: 故障排查
     details: 常見問題、失敗經驗和解決方案
-    link: /4. 故障排查/
+    link: /4. 故障排查/4.0 概述
   
   - icon: 📦
     title: 歷史歸檔
     details: 過往測試記錄與參考文件
-    link: /5. 歷史歸檔/
+    link: /5. 歷史歸檔/5.0 概述
 ---
 
 ## 💡 關於本文檔
@@ -57,12 +57,13 @@ features:
 ### 🎯 推薦閱讀路徑
 
 **初次使用者**：
-1. [使用指南](/1. 使用指南/) → 了解基本操作
-2. [API 參考](/2. API 參考/) → 查看測試結果
-3. [故障排查](/4. 故障排查/) → 避免常見錯誤
+1. [Quick Start](/Quick Start) → 5 分鐘快速上手
+2. [使用指南](/1. 使用指南/1.0 概述) → 了解基本操作
+3. [API 參考](/2. API 參考/2.0 概述) → 查看測試結果
+4. [故障排查](/4. 故障排查/4.0 概述) → 避免常見錯誤
 
 **部署人員**：
-1. [部署指南](/3. 部署指南/) → 完整部署流程
+1. [部署指南](/3. 部署指南/3.0 概述) → 完整部署流程
 2. [VitePress 設置](/3. 部署指南/3.1 VitePress 設置) → 文檔站設置
 3. [Cloudflare Worker](/3. 部署指南/3.3 Cloudflare Worker) → 反向代理配置
 
