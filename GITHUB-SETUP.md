@@ -1,0 +1,119 @@
+# GitHub 設置步驟
+
+## 步驟 1：在 GitHub 上創建倉庫
+
+1. 訪問：https://github.com/new
+2. 設置：
+   - **Repository name**: `hedgedoc-guide`
+   - **Description**: `HedgeDoc API 使用指南與 VitePress 文檔站`
+   - **Visibility**: Public（或 Private，根據你的需求）
+   - **不要**勾選 "Add a README file"（我們已經有了）
+   - **不要**勾選 "Add .gitignore"（我們已經有了）
+
+3. 點擊 "Create repository"
+
+## 步驟 2：推送到 GitHub
+
+在終端執行以下命令（根據你的 GitHub 用戶名調整）：
+
+```bash
+cd /Users/JL/Development/news/test-hedgedoc
+
+# 添加遠端倉庫（替換 YOUR_USERNAME）
+git remote add origin https://github.com/YOUR_USERNAME/hedgedoc-guide.git
+
+# 推送到 main 分支
+git branch -M main
+git push -u origin main
+```
+
+## 步驟 3：Railway 部署設置
+
+### 方式 A：獨立子域名（推薦，簡單）
+
+1. 在 Railway 專案中點擊 "New Service"
+2. 選擇 "GitHub Repo"
+3. 選擇 `hedgedoc-guide` 倉庫
+4. Railway 會自動檢測到 Node.js 專案
+5. 設置環境變數（如果需要）
+6. 點擊 "Deploy"
+
+**部署配置**：
+- Build Command: `npm run docs:build`
+- Start Command: `npx vitepress preview docs --port $PORT`
+
+**設置自訂域名**：
+- 在 Railway Service Settings 中添加域名：`docs.blocktempo.ai`
+- 在 DNS 設置中添加 CNAME 記錄指向 Railway
+
+### 方式 B：反向代理路徑（複雜）
+
+如果你想要 `md.blocktempo.ai/docs`，需要：
+
+1. 部署 Caddy 服務（新 Service）
+2. 創建 Caddyfile：
+
+```caddy
+{
+    admin off
+}
+
+:$PORT {
+    # 處理 /docs 路徑
+    handle /docs* {
+        uri strip_prefix /docs
+        reverse_proxy http://vitepress-service:3000
+    }
+    
+    # 其他請求轉發到 HedgeDoc
+    handle {
+        reverse_proxy http://hedgedoc-service:3000
+    }
+}
+```
+
+3. 修改 VitePress 配置，添加 base path：
+
+```typescript
+// docs/.vitepress/config.ts
+export default defineConfig({
+  base: '/docs/',  // 添加這一行
+  // ... 其他配置
+})
+```
+
+4. 設置 Railway 的域名指向 Caddy 服務
+
+## 推薦方案
+
+**強烈建議使用方式 A（獨立子域名）**，原因：
+- ✅ 部署簡單，5 分鐘完成
+- ✅ 不需要額外的反向代理服務
+- ✅ 不需要修改 VitePress 配置
+- ✅ 維護簡單，各服務獨立
+- ✅ Railway 原生支援，穩定可靠
+
+## 驗證部署
+
+部署完成後訪問：
+- `https://docs.blocktempo.ai` （方式 A）
+- `https://md.blocktempo.ai/docs` （方式 B）
+
+確認以下功能正常：
+- [ ] 首頁顯示正常
+- [ ] 側邊欄導航正常
+- [ ] 搜索功能正常
+- [ ] 所有文檔頁面可訪問
+- [ ] 沒有 404 錯誤
+
+## 後續維護
+
+每次更新文檔：
+```bash
+git add .
+git commit -m "Update documentation"
+git push
+```
+
+Railway 會自動檢測到 push 並重新部署！
+
