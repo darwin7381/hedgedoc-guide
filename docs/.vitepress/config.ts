@@ -70,11 +70,11 @@ export default defineConfig({
     // 導航欄
     nav: [
       { text: '首頁', link: '/' },
-      { text: '使用指南', link: '/guide/standard-operation-guide' },
-      { text: 'API 參考', link: '/api-reference/verification-report' }
+      { text: '標準操作指南', link: '/guide/standard-operation-guide' },
+      { text: '驗證報告', link: '/api-reference/verification-report' }
     ],
     
-    // 側邊欄 - 自動生成，顯示所有文件
+    // 側邊欄 - 自動生成
     sidebar: generateSidebar(),
     
     // 社交連結
