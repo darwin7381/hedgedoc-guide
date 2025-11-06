@@ -55,7 +55,6 @@ function generateSidebar() {
 }
 
 export default defineConfig({
-  base: '/docs/',  // 設置 base path，因為會在 md.blocktempo.ai/docs 下運行
   title: 'HedgeDoc 測試文檔',
   description: 'HedgeDoc API 測試與整合指南',
   
