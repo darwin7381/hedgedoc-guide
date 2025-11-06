@@ -55,6 +55,7 @@ function generateSidebar() {
 }
 
 export default defineConfig({
+  base: '/docs/',  // 所有資源和連結都會是 /docs/ 開頭，這樣 Worker 才能正確攔截
   title: 'HedgeDoc 測試文檔',
   description: 'HedgeDoc API 測試與整合指南',
   
