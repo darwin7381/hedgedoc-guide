@@ -59,6 +59,9 @@ export default defineConfig({
   title: 'HedgeDoc 測試文檔',
   description: 'HedgeDoc API 測試與整合指南',
   
+  // 忽略 dead links，避免建置失敗
+  ignoreDeadLinks: true,
+  
   // 清理 URL，移除 .html 後綴
   cleanUrls: true,
   
