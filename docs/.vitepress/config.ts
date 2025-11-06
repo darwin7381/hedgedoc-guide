@@ -70,8 +70,9 @@ export default defineConfig({
     // 導航欄
     nav: [
       { text: '首頁', link: '/' },
-      { text: '標準操作指南', link: '/1. 使用指南/1.1 標準操作指南' },
-      { text: '驗證報告', link: '/2. API 參考/2.1 驗證報告' }
+      { text: '快速開始', link: '/quick-start' },
+      { text: '標準操作指南', link: '/01-guide/1.1-standard-operation-guide' },
+      { text: '驗證報告', link: '/02-api-reference/2.1-verification-report' }
     ],
     
     // 側邊欄 - 自動生成
