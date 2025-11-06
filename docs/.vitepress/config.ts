@@ -116,6 +116,15 @@ export default defineConfig({
     theme: {
       light: 'github-light',
       dark: 'github-dark'
+    },
+    config: (md) => {
+      // 為所有包含 {{ 的內容區塊自動添加處理
+      const defaultRender = md.render.bind(md)
+      md.render = (src, env) => {
+        // 將 {{ }} 暫時替換為安全的字符
+        const safeSrc = src.replace(/\{\{([^}]+)\}\}/g, '&#123;&#123;$1&#125;&#125;')
+        return defaultRender(safeSrc, env)
+      }
     }
   }
 })
