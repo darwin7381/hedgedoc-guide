@@ -1,0 +1,9 @@
+[phases.install]
+cmds = ["npm ci"]
+
+[phases.build]
+cmds = ["npm run docs:build"]
+
+[start]
+cmd = "npm run docs:preview -- --port $PORT --host 0.0.0.0"
+
