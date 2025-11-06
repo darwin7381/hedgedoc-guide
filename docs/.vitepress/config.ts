@@ -13,23 +13,23 @@ export default defineConfig({
   
   // 主題配置
   themeConfig: {
-    // 導航欄
+    // 導航欄（不需要 /docs/ 前綴，base 會自動加）
     nav: [
-      { text: '首頁', link: '/docs/' },
-      { text: '使用指南', link: '/docs/guide/' },
-      { text: 'API 參考', link: '/docs/api-reference/' },
-      { text: '部署指南', link: '/docs/deployment/' },
-      { text: '故障排查', link: '/docs/troubleshooting/' }
+      { text: '首頁', link: '/' },
+      { text: '使用指南', link: '/guide/' },
+      { text: 'API 參考', link: '/api-reference/' },
+      { text: '部署指南', link: '/deployment/' },
+      { text: '故障排查', link: '/troubleshooting/' }
     ],
     
-    // 側邊欄 - 結構化配置
+    // 側邊欄 - 結構化配置（不需要 /docs/ 前綴）
     sidebar: {
       '/guide/': [
         {
           text: '使用指南',
           items: [
-            { text: '概述', link: '/docs/guide/' },
-            { text: '標準操作指南', link: '/docs/guide/standard-operation-guide' }
+            { text: '概述', link: '/guide/' },
+            { text: '標準操作指南', link: '/guide/standard-operation-guide' }
           ]
         }
       ],
@@ -37,8 +37,8 @@ export default defineConfig({
         {
           text: 'API 參考',
           items: [
-            { text: '概述', link: '/docs/api-reference/' },
-            { text: '驗證報告', link: '/docs/api-reference/verification-report' }
+            { text: '概述', link: '/api-reference/' },
+            { text: '驗證報告', link: '/api-reference/verification-report' }
           ]
         }
       ],
@@ -46,10 +46,10 @@ export default defineConfig({
         {
           text: '部署指南',
           items: [
-            { text: '概述', link: '/docs/deployment/' },
-            { text: 'VitePress 設置', link: '/docs/deployment/vitepress-setup' },
-            { text: 'GitHub & Railway', link: '/docs/deployment/github-railway' },
-            { text: 'Cloudflare Worker', link: '/docs/deployment/cloudflare-worker' }
+            { text: '概述', link: '/deployment/' },
+            { text: 'VitePress 設置', link: '/deployment/vitepress-setup' },
+            { text: 'GitHub & Railway', link: '/deployment/github-railway' },
+            { text: 'Cloudflare Worker', link: '/deployment/cloudflare-worker' }
           ]
         }
       ],
@@ -57,10 +57,10 @@ export default defineConfig({
         {
           text: '故障排查',
           items: [
-            { text: '概述', link: '/docs/troubleshooting/' },
-            { text: '失敗嘗試歸檔', link: '/docs/troubleshooting/failed-attempts' },
-            { text: '測試文件總結', link: '/docs/troubleshooting/test-files-summary' },
-            { text: '專案重組記錄', link: '/docs/troubleshooting/project-reorganization' }
+            { text: '概述', link: '/troubleshooting/' },
+            { text: '失敗嘗試歸檔', link: '/troubleshooting/failed-attempts' },
+            { text: '測試文件總結', link: '/troubleshooting/test-files-summary' },
+            { text: '專案重組記錄', link: '/troubleshooting/project-reorganization' }
           ]
         }
       ],
@@ -68,12 +68,12 @@ export default defineConfig({
         {
           text: '歷史歸檔',
           items: [
-            { text: '概述', link: '/docs/archive/' },
-            { text: 'API 方法比較', link: '/docs/archive/hedgedoc-api-methods-comparison' },
-            { text: 'API 測試結果', link: '/docs/archive/hedgedoc-api-test-results' },
-            { text: 'n8n 整合錯誤', link: '/docs/archive/hedgedoc-n8n-integration-errors' },
-            { text: 'HashKey Pro 新聞', link: '/docs/archive/hashkey-pro-news' },
-            { text: 'Markdown 測試', link: '/docs/archive/markdown-test-complete' }
+            { text: '概述', link: '/archive/' },
+            { text: 'API 方法比較', link: '/archive/hedgedoc-api-methods-comparison' },
+            { text: 'API 測試結果', link: '/archive/hedgedoc-api-test-results' },
+            { text: 'n8n 整合錯誤', link: '/archive/hedgedoc-n8n-integration-errors' },
+            { text: 'HashKey Pro 新聞', link: '/archive/hashkey-pro-news' },
+            { text: 'Markdown 測試', link: '/archive/markdown-test-complete' }
           ]
         }
       ]
