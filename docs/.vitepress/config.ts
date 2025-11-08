@@ -14,10 +14,19 @@ function generateSidebar() {
   // 掃描根目錄的 markdown 文件
   const rootFiles = readdirSync(docsDir)
     .filter(file => file.endsWith('.md') && file !== 'index.md')
-    .map(file => ({
-      text: file.replace('.md', '').replace(/-/g, ' '),
-      link: `/${file.replace('.md', '')}`
-    }))
+    .map(file => {
+      const fileName = file.replace('.md', '')
+      const displayName = fileName
+        .replace(/-/g, ' ')  // 把連字號換成空格
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))  // 每個單字首字母大寫
+        .join(' ')
+      
+      return {
+        text: displayName,
+        link: `/${fileName}`
+      }
+    })
   
   if (rootFiles.length > 0) {
     items.push({
@@ -37,14 +46,27 @@ function generateSidebar() {
     const dirPath = join(docsDir, dir)
     const files = readdirSync(dirPath)
       .filter(file => file.endsWith('.md'))
-      .map(file => ({
-        text: file.replace('.md', '').replace(/-/g, ' '),
-        link: `/${dir}/${file.replace('.md', '')}`
-      }))
+      .map(file => {
+        const fileName = file.replace('.md', '')
+        const displayName = fileName
+          .replace(/-/g, ' ')  // 把連字號換成空格
+          .split(' ')
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1))  // 每個單字首字母大寫
+          .join(' ')
+        
+        return {
+          text: displayName,
+          link: `/${dir}/${fileName}`
+        }
+      })
     
     if (files.length > 0) {
       items.push({
-        text: dir.charAt(0).toUpperCase() + dir.slice(1),
+        text: dir
+          .replace(/-/g, ' ')  // 把連字號換成空格
+          .split(' ')
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1))  // 每個單字首字母大寫
+          .join(' '),
         collapsed: false,
         items: files
       })
@@ -52,6 +74,35 @@ function generateSidebar() {
   })
   
   return items
+}
+
+// 自動生成導航欄（只包含根目錄的重要文件）
+function generateNav() {
+  const docsDir = join(__dirname, '..')
+  const nav = [
+    { text: '首頁', link: '/' }
+  ]
+  
+  // 掃描根目錄的 markdown 文件
+  const rootFiles = readdirSync(docsDir)
+    .filter(file => file.endsWith('.md') && file !== 'index.md')
+    .sort() // 按字母排序
+  
+  rootFiles.forEach(file => {
+    const fileName = file.replace('.md', '')
+    const displayName = fileName
+      .replace(/-/g, ' ')
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ')
+    
+    nav.push({
+      text: displayName,
+      link: `/${fileName}`
+    })
+  })
+  
+  return nav
 }
 
 export default defineConfig({
@@ -67,13 +118,8 @@ export default defineConfig({
   
   // 主題配置
   themeConfig: {
-    // 導航欄
-    nav: [
-      { text: '首頁', link: '/' },
-      { text: '快速開始', link: '/quick-start' },
-      { text: '標準操作指南', link: '/01-guide/1.1-standard-operation-guide' },
-      { text: '驗證報告', link: '/02-api-reference/2.1-verification-report' }
-    ],
+    // 導航欄 - 自動生成
+    nav: generateNav(),
     
     // 側邊欄 - 自動生成
     sidebar: generateSidebar(),
