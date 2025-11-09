@@ -428,6 +428,23 @@ HTTP Status: 404
 
 ## 🚀 n8n 整合範例
 
+### 📦 快速開始：使用 Workflow 範本
+
+**最快的方式**：直接匯入我們提供的範本！
+
+**範本下載**：[workflows/hedgedoc-create-and-read-template.json](../workflows/hedgedoc-create-and-read-template.json)
+
+**使用步驟**：
+1. 下載範本 JSON 文件
+2. 在 n8n 中：右上角「⋯」→「Import from File」
+3. 貼上 JSON 內容 → 點擊「Import」
+4. 修改「Content Parameter」節點中的 `token_manager_key` 為你的 Token
+5. 執行測試！
+
+**詳細說明**：查看 [workflows/README.md](../workflows/README.md)
+
+---
+
 ### ⚠️ 重要設置說明
 
 **n8n 預設會自動跟隨 302 redirect**，導致返回 HTML 頁面而不是 Location header。
