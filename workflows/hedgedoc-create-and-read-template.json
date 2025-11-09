@@ -1,0 +1,232 @@
+{
+  "name": "HedgeDoc - 創建並讀取筆記 (範本)",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "id": "e3c697e1-9313-4193-b7c0-fdb00377c7ad",
+      "name": "When clicking 'Execute workflow'"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e3c38f6f-1d6e-476a-8d6e-71e38b4d787a",
+              "name": "Markdown Article",
+              "value": "=# 測試筆記標題\n\n## 測試時間\n{{ $now }}\n\n## 內容區塊\n\n這是透過 n8n + Token Manager Gateway 創建的測試筆記。\n\n### 功能驗證\n- ✅ POST 請求成功\n- ✅ 302 Redirect 處理正確\n- ✅ Location Header 提取成功\n- ✅ Note ID 解析正確\n\n### 測試項目\n1. 創建筆記\n2. 讀取筆記內容\n3. 獲取元數據\n4. 生成各種訪問 URL\n\n**整合測試成功！**",
+              "type": "string"
+            },
+            {
+              "id": "8fffcc02-e1b7-4ecd-a6a6-d6c040b991bc",
+              "name": "token_manager_key",
+              "value": "YOUR_TOKEN_HERE",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [208, 0],
+      "id": "bf60f2b9-29b5-489a-bd7a-3c23e6c2e586",
+      "name": "Content Parameter"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api-gateway.cryptoxlab.workers.dev/api/hedgedoc/new",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "={{ $json.token_manager_key }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "text/markdown"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "text/markdown",
+        "body": "={{ $json['Markdown Article'] }}",
+        "options": {
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          },
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [400, 0],
+      "id": "316e80d7-2fa9-48c2-923a-557e7268d745",
+      "name": "創建筆記"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 從 HTTP Response 的 headers 中提取 location\nconst location = $input.item.json.headers.location;\n\n// 從 URL 中提取 Note ID（最後一段）\nconst noteId = location.split('/').pop();\n\n// 構建不同格式的 URL\nreturn {\n  noteId: noteId,\n  \n  // Gateway URLs（透過 Token Manager）\n  gatewayUrl: location,\n  downloadUrl: `${location}/download`,\n  infoUrl: `${location}/info`,\n  \n  // 直接訪問 HedgeDoc URLs\n  directUrl: `https://md.blocktempo.ai/${noteId}`,\n  editUrl: `https://md.blocktempo.ai/${noteId}?edit`,      // 整頁編輯模式\n  bothUrl: `https://md.blocktempo.ai/${noteId}?both`,      // 雙開編輯模式\n  viewUrl: `https://md.blocktempo.ai/${noteId}?view`,      // 只讀模式\n  \n  // 其他資訊\n  createdAt: new Date().toISOString()\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [608, 0],
+      "id": "5b7fb974-77f6-4db0-b472-b1d10dc16ff0",
+      "name": "整理新 markdown 文件輸出參數"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3f85ecee-55dd-47f8-8519-d967c7adafe5",
+              "name": "雙開模式",
+              "value": "={{ $json.bothUrl }}",
+              "type": "string"
+            },
+            {
+              "id": "d22d1730-b238-4a02-9b6f-93b92a481f80",
+              "name": "純編輯模式",
+              "value": "={{ $json.editUrl }}",
+              "type": "string"
+            },
+            {
+              "id": "ebf6590e-cf5d-4f8b-8f52-1d2f3ec2a7f2",
+              "name": "純閱讀模式",
+              "value": "={{ $json.viewUrl }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [832, 32],
+      "id": "b318c811-f073-481e-a4b8-940a54fcc01d",
+      "name": "各版本 view"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.downloadUrl }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "={{ $('Content Parameter').item.json.token_manager_key }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [832, -128],
+      "id": "61bf10fe-343e-4db7-ac1f-4a7a0a54667a",
+      "name": "讀取 markdown 文件內容"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.infoUrl }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "={{ $('Content Parameter').item.json.token_manager_key }}"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [832, 192],
+      "id": "a05802ef-e7f8-4bb9-8d24-6fd3233e0bee",
+      "name": "讀取元數據"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking 'Execute workflow'": {
+      "main": [
+        [
+          {
+            "node": "Content Parameter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Content Parameter": {
+      "main": [
+        [
+          {
+            "node": "創建筆記",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "創建筆記": {
+      "main": [
+        [
+          {
+            "node": "整理新 markdown 文件輸出參數",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "整理新 markdown 文件輸出參數": {
+      "main": [
+        [
+          {
+            "node": "讀取 markdown 文件內容",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "讀取元數據",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "各版本 view",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "tags": []
+}
+

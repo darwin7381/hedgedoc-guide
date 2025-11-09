@@ -277,16 +277,45 @@ Options:
 ### Code Node 範例
 
 ```javascript
-// 提取 Location header
+// 從 HTTP Response 的 headers 中提取 location
 const location = $input.item.json.headers.location;
+
+// 從 URL 中提取 Note ID（最後一段）
 const noteId = location.split('/').pop();
 
+// 構建不同格式的 URL
 return {
   noteId: noteId,
-  noteUrl: location,
-  title: $input.item.json.title || '未命名',
+  
+  // Gateway URLs（透過 Token Manager）
+  gatewayUrl: location,
+  downloadUrl: `${location}/download`,
+  infoUrl: `${location}/info`,
+  
+  // 直接訪問 HedgeDoc URLs
+  directUrl: `https://md.blocktempo.ai/${noteId}`,
+  editUrl: `https://md.blocktempo.ai/${noteId}?edit`,      // 整頁編輯模式
+  bothUrl: `https://md.blocktempo.ai/${noteId}?both`,      // 雙開編輯模式
+  viewUrl: `https://md.blocktempo.ai/${noteId}?view`,      // 只讀模式
+  
+  // 其他資訊
   createdAt: new Date().toISOString()
 };
+```
+
+**輸出範例**：
+```json
+{
+  "noteId": "AQY5Z-KpQxyoK4JAOtTfcw",
+  "gatewayUrl": "https://api-gateway.cryptoxlab.workers.dev/api/hedgedoc/AQY5Z-KpQxyoK4JAOtTfcw",
+  "downloadUrl": "https://api-gateway.cryptoxlab.workers.dev/api/hedgedoc/AQY5Z-KpQxyoK4JAOtTfcw/download",
+  "infoUrl": "https://api-gateway.cryptoxlab.workers.dev/api/hedgedoc/AQY5Z-KpQxyoK4JAOtTfcw/info",
+  "directUrl": "https://md.blocktempo.ai/AQY5Z-KpQxyoK4JAOtTfcw",
+  "editUrl": "https://md.blocktempo.ai/AQY5Z-KpQxyoK4JAOtTfcw?edit",
+  "bothUrl": "https://md.blocktempo.ai/AQY5Z-KpQxyoK4JAOtTfcw?both",
+  "viewUrl": "https://md.blocktempo.ai/AQY5Z-KpQxyoK4JAOtTfcw?view",
+  "createdAt": "2025-11-09T10:15:33.123Z"
+}
 ```
 
 ### HTTP Request 2 (讀取) - 完整配置
@@ -438,6 +467,68 @@ Fields to Set:
 Max Retries: 3
 Wait Between Retries: 1000 (ms)
 ```
+
+---
+
+## 📦 Workflow 範本下載
+
+### 快速開始：匯入範本
+
+我們提供了一個完整的 n8n workflow 範本，包含所有正確的設置。
+
+**範本位置**：[workflows/hedgedoc-create-and-read-template.json](../../workflows/hedgedoc-create-and-read-template.json)
+
+### 如何使用範本
+
+1. **下載範本文件**
+   - 點擊上面的連結
+   - 複製 JSON 內容
+
+2. **在 n8n 中匯入**
+   - 開啟 n8n
+   - 點擊右上角「⋯」→「Import from File」
+   - 貼上 JSON 內容
+   - 點擊「Import」
+
+3. **設置你的 Token**
+   - 找到「Content Parameter」節點
+   - 將 `token_manager_key` 的值從 `YOUR_TOKEN_HERE` 改為你的實際 Token
+   - 或使用環境變數：`{{ $env.HEDGEDOC_TOKEN }}`
+
+4. **執行測試**
+   - 點擊「Execute workflow」
+   - 驗證所有節點都成功執行
+
+### 範本包含的節點
+
+```
+[Manual Trigger]
+     ↓
+[Content Parameter] - 設置 Token 和筆記內容
+     ↓
+[創建筆記] - POST /new（已設置正確的 Options）
+     ↓
+[整理新 markdown 文件輸出參數] - 提取 Note ID 和生成各種 URL
+     ↓
+     ├─ [讀取 markdown 文件內容] - GET /download
+     ├─ [讀取元數據] - GET /info
+     └─ [各版本 view] - 整理編輯/預覽 URLs
+```
+
+### 範本輸出的 URLs
+
+使用範本後，你會得到以下所有 URLs：
+
+| URL 類型 | 用途 | 範例 |
+|---------|------|------|
+| `noteId` | 筆記 ID | `AQY5Z-KpQxyoK4JAOtTfcw` |
+| `gatewayUrl` | Gateway 訪問 | `https://api-gateway.../api/hedgedoc/xxx` |
+| `downloadUrl` | 下載 Markdown | `https://api-gateway.../api/hedgedoc/xxx/download` |
+| `infoUrl` | 獲取元數據 | `https://api-gateway.../api/hedgedoc/xxx/info` |
+| `directUrl` | 直接訪問 | `https://md.blocktempo.ai/xxx` |
+| `editUrl` | 整頁編輯模式 | `https://md.blocktempo.ai/xxx?edit` |
+| `bothUrl` | 雙開編輯模式 | `https://md.blocktempo.ai/xxx?both` |
+| `viewUrl` | 只讀模式 | `https://md.blocktempo.ai/xxx?view` |
 
 ---
 
