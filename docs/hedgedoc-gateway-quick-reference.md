@@ -428,25 +428,58 @@ HTTP Status: 404
 
 ## 🚀 n8n 整合範例
 
+### ⚠️ 重要設置說明
+
+**n8n 預設會自動跟隨 302 redirect**，導致返回 HTML 頁面而不是 Location header。
+
+必須進行以下設置：
+
 ### HTTP Request 節點設置
 
 **創建筆記**：
+
+1. **基本設置**：
 ```
 Method: POST
 URL: https://api-gateway.cryptoxlab.workers.dev/api/hedgedoc/new
+```
 
-Headers:
-  X-API-Key: {{$env.HEDGEDOC_TOKEN}}
-  Content-Type: text/markdown
+2. **Headers**（點擊 "Add Parameter"）：
+```
+Name: X-API-Key
+Value: {{$env.HEDGEDOC_TOKEN}}
 
-Body (Raw/JSON):
+Name: Content-Type  
+Value: text/markdown
+```
+
+3. **Body**：
+- Send Body: ✅ 啟用
+- Body Content Type: Raw/JSON
+- Body:
+```
 # {{$json.title}}
 
 {{$json.content}}
+```
 
-Options:
-  ☑ Return Full Response
-  ☐ Follow Redirect
+4. **Options（關鍵設置）**：
+```
+☑ Ignore Response Code (允許 3xx 狀態碼)
+☐ Follow Redirect (❌ 必須關閉！)
+☑ Return Full Response (返回完整響應包含 headers)
+```
+
+5. **提取 Note ID**（下一個節點使用 Code 或 Set）：
+```javascript
+// Code 節點
+const location = $input.item.json.headers.location;
+const noteId = location.split('/').pop();
+
+return {
+  noteId: noteId,
+  noteUrl: location
+};
 ```
 
 **讀取筆記**：
