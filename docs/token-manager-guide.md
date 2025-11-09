@@ -1,12 +1,7 @@
----
-title: Token Manager 使用指南
----
-
 # API Gateway 使用指南
 
 **目標讀者**：其他微服務的開發者  
 **目的**：了解如何接入 Token Manager API Gateway
-**公開文件版**：https://hedgedoc.example.com/s/_7lad-WFf
 
 ---
 
@@ -132,11 +127,18 @@ HTTP 客戶端
 
 ```
 名稱: Image Processor
-路徑: /api/image
+路徑: /api/image（前綴路徑，只需註冊一次）
 後端 URL: https://image-processor.railway.app
 描述: 圖片處理微服務
 標籤: image, media, processing
 ```
+
+💡 **重要**：只需註冊**前綴路徑**（如 `/api/image`），所有子路徑會自動轉發：
+- `/api/image/create` → 自動轉發到你的服務
+- `/api/image/read` → 自動轉發
+- `/api/image/任何路徑` → 自動轉發
+
+**不需要**為每個端點創建路由！
 
 **如果你的微服務需要認證**（例如需要 Bearer Token）：
 ```
@@ -362,29 +364,76 @@ curl https://api-gateway.cryptoxlab.workers.dev/api/image/test \
 
 ---
 
-## 🔄 路徑轉發規則
+## 🔄 路徑轉發規則（重要！）
 
-### Worker 如何處理路徑
+### 一個路由 = 所有子路徑
+
+**只需註冊前綴路徑**，例如註冊 `/api/hedgedoc`：
 
 ```
-請求: https://api-gateway.cryptoxlab.workers.dev/api/image/process/resize?size=100
+註冊的路由: /api/hedgedoc
+後端 URL: https://hedgedoc.example.com
+
+自動支援所有子路徑:
+  ✅ /api/hedgedoc/create → 轉發到 hedgedoc.example.com/create
+  ✅ /api/hedgedoc/read → 轉發到 hedgedoc.example.com/read  
+  ✅ /api/hedgedoc/new → 轉發到 hedgedoc.example.com/new
+  ✅ /api/hedgedoc/任何路徑 → 自動轉發
+
+不需要為 /create、/read、/new 分別創建路由！
+```
+
+### Worker 轉發邏輯
+
+```
+請求: https://api-gateway.cryptoxlab.workers.dev/api/hedgedoc/create?title=test
         
 路由配置:
-  路徑: /api/image
-  後端: https://image-processor.railway.app
+  路徑: /api/hedgedoc
+  後端: https://hedgedoc.example.com
 
 Worker 處理:
-  1. 匹配路由: /api/image ✅
-  2. 提取剩餘路徑: /process/resize
-  3. 保留 query: ?size=100
-  4. 拼接: https://image-processor.railway.app/process/resize?size=100
-  5. 轉發
+  1. 匹配路由: /api/hedgedoc ✅
+  2. 去除前綴，提取: /create
+  3. 保留 query: ?title=test
+  4. 拼接: https://hedgedoc.example.com/create?title=test
+  5. 轉發（保留 method、headers、body）
 ```
 
-**重要**：
-- 路徑會被「去除前綴」
-- Query parameters 會保留
-- HTTP method、headers、body 都會轉發
+---
+
+## ⚠️ 接入前：檢查你的 API 類型（30 秒）
+
+**為什麼要檢查？** 不同類型的 HTTP 請求有不同的處理方式，提前確認可以避免問題。
+
+### 快速測試你的後端 API
+
+```bash
+# 1. 檢查響應狀態碼和 headers
+curl -I https://your-backend.com/endpoint
+
+# 看這裡 ↓
+HTTP/2 200  ← 2xx = 標準請求 ✅ 沒問題
+HTTP/2 302  ← 3xx = Redirect 請求 ✅ 沒問題（我們會處理）
+location: https://...  ← 有這個 = Redirect ✅ 沒問題
+```
+
+### ✅ 確認支援（大多數 API 都沒問題）
+
+你的 API **可以接入**，如果：
+- ✅ 狀態碼是 2xx（200, 201, 204...）
+- ✅ 狀態碼是 3xx（301, 302, 303...）且有 `Location` header
+- ✅ 狀態碼是 4xx/5xx（錯誤也能正確轉發）
+- ✅ Request body < 100MB
+
+### ⚠️ 需要注意（少數情況）
+
+你的 API **可能需要調整**，如果：
+- ⚠️ Request body > 100MB（大檔案上傳）
+- ⚠️ Response 是串流（Server-Sent Events, 視頻串流）
+- ❌ 使用 WebSocket（目前不支援，需要直接連接）
+
+**不確定？** 直接接入試試，90% 的 API 都沒問題！遇到問題再查 `/docs/HTTP_REQUEST_TYPES_SUPPORT.md`
 
 ---
 
