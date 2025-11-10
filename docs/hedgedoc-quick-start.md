@@ -1,7 +1,3 @@
----
-title: HedgeDoc Gateway 快速參考
----
-
 # HedgeDoc Gateway 快速參考
 
 透過 Token Manager Gateway 使用 HedgeDoc API 的完整指令範例

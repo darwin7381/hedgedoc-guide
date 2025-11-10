@@ -1,7 +1,3 @@
----
-title: n8n HedgeDoc 整合設置指南
----
-
 # n8n HedgeDoc 整合設置指南
 
 解決 n8n 中 HedgeDoc API 返回 HTML 頁面的問題
